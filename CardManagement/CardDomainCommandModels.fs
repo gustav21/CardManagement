@@ -64,7 +64,7 @@ module CardDomainCommandModels =
     [<CLIMutable>]
     type CreateUserCommandModel =
         { Name: string
-          Address: CreateAddressCommandModel }
+          Address: CreateAddressCommandModel option }
 
     [<CLIMutable>]
     type CreateCardCommandModel =
@@ -152,7 +152,11 @@ module CardDomainCommandModels =
         fun cmd ->
         result {
             let! name = LetterString.create "name" cmd.Name
-            let! address = validateCreateAddressCommand cmd.Address
+            let! address =
+                match cmd.Address with
+                | Some address -> Ok address
+                | None -> Error { FieldPath = "Address"; Message = "Address must be specified" }
+            let! address = validateCreateAddressCommand address
             return
                 { UserInfo.Id = userId
                   Name = name
