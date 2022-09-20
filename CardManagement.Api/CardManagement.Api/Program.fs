@@ -128,7 +128,7 @@ module Program =
     let main args =
         AppConfiguration.configureLog()
         WebHostBuilder()
-            .UseKestrel()
+            .UseKestrel(fun opts -> opts.AllowSynchronousIO <- true)
             .Configure(Action<IApplicationBuilder> configureApp)
             .ConfigureServices(configureServices)
             .Build()
