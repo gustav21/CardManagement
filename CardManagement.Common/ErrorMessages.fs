@@ -14,8 +14,12 @@ module ErrorMessages =
         | UpdateError (name, id, message) ->
             message |> (entityDescription name id |> sprintf "%s failed to update. Details:\n%s")
 
-    let validationMessage { FieldPath = path; Message = message } =
-        sprintf "Field [%s] is invalid. Message: %s" path message
+    let validationMessage (first,rest) =
+        let createMsg { FieldPath = path; Message = message } =
+            sprintf "Field [%s] is invalid. Message: %s" path message
+        let firstMsg = createMsg first
+        let restMsgs = rest |> List.map createMsg
+        firstMsg::restMsgs |> String.concat "; "
 
     let operationNotAllowedMessage { Operation = op; Reason = reason } =
         sprintf "Operation [%s] is not allowed. Reason: %s" op reason

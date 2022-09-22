@@ -155,7 +155,7 @@ module CardDomainCommandModels =
             let! address =
                 match cmd.Address with
                 | Some address -> Ok address
-                | None -> Error { FieldPath = "Address"; Message = "Address must be specified" }
+                | None -> validationError "Address" "Address must be specified"
             let! address = validateCreateAddressCommand address
             return
                 { UserInfo.Id = userId

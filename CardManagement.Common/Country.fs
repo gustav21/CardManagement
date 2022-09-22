@@ -218,4 +218,4 @@ module CountryModule =
     let parseCountry country =
         match tryParseEmptyDUCase<Country> country with
         | Some country -> Ok country
-        | None -> Error { FieldPath = "country"; Message = sprintf "Country %s is unknown" country}
+        | None -> validationError "country" (sprintf "Country %s is unknown" country)
