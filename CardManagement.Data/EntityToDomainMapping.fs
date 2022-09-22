@@ -19,8 +19,12 @@ module EntityToDomainMapping =
     // In here validation error means that invalid data was not provided by user, but instead
     // it was in our system. So if we have this error we throw exception
     let private throwOnValidationError entityName (err: ValidationError) =
-        sprintf "Could not deserialize entity [%s]. Field [%s]. Message: %s." entityName err.FieldPath err.Message
-        |> failwith
+        let createExn (err: FieldValidationError) =
+            sprintf "Field [%s]. Message: %s." err.FieldPath err.Message
+            |> System.Exception
+        let firstExn = createExn (fst err)
+        let restExns = snd err |> List.map createExn
+        raise (System.AggregateException(sprintf "Could not deserialize entity [%s]." entityName, firstExn::restExns))
 
     let valueOrException (result: Result< 'a, ValidationError>) : 'a =
         match result with

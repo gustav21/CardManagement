@@ -26,9 +26,12 @@ some validation, then probably business rules checking, then some calls to data 
 module Errors =
     open System
 
-    type ValidationError =
+    type FieldValidationError =
         { FieldPath: string
           Message: string }
+
+    // Error for at least one field is required
+    type ValidationError = FieldValidationError * FieldValidationError list
 
     type OperationNotAllowedError =
         { Operation: string
@@ -47,7 +50,7 @@ module Errors =
         | DataError of DataRelatedError
         | Bug of exn
 
-    let validationError fieldPath message = { FieldPath = fieldPath; Message = message } |> Error
+    let validationError fieldPath message = ({ FieldPath = fieldPath; Message = message },[]) |> Error
 
     let bug exc = Bug exc |> Error
 
