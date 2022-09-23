@@ -41,6 +41,7 @@ module Errors =
         | EntityAlreadyExists of entityName: string * id: string
         | EntityNotFound of entityName: string * id: string
         | EntityIsInUse of entityName: string * id: string
+        | InsertError of entityName:string * id: string * message:string
         | UpdateError of entityName:string * id: string * message:string
 
 
@@ -57,6 +58,8 @@ module Errors =
     let operationNotAllowed operation reason = { Operation = operation; Reason = reason } |> Error
 
     let notFound name id = EntityNotFound (name, id) |> Error
+
+    let insertError entityName id message = InsertError (entityName, id, message) |> Error
 
     let entityInUse name = EntityIsInUse name |> Error
 

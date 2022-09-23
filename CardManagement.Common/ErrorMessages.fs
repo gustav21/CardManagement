@@ -11,6 +11,8 @@ module ErrorMessages =
         | EntityAlreadyExists (name, id) -> entityDescription name id |> sprintf "%s already exists."
         | EntityNotFound (name, id) -> entityDescription name id |> sprintf "%s was not found."
         | EntityIsInUse (name, id) -> entityDescription name id |> sprintf "%s is in use."
+        | InsertError (name, id, message) ->
+            message |> (entityDescription name id |> sprintf "%s failed to insert. Details:\n%s")
         | UpdateError (name, id, message) ->
             message |> (entityDescription name id |> sprintf "%s failed to update. Details:\n%s")
 

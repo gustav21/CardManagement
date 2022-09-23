@@ -29,7 +29,14 @@ module CardDataPipeline =
         fun (card, accountInfo) ->
         let cardEntity, _ = card |> DomainToEntityMapping.mapCardToEntity
         let accountInfoEntity = (card.CardNumber, accountInfo) |> DomainToEntityMapping.mapAccountInfoToEntity
-        (cardEntity, accountInfoEntity) |> CommandRepository.createCardAsync mongoDb
+        async {
+            let! userEntity = QueryRepository.getUserInfoAsync mongoDb card.HolderId
+            match userEntity with
+            | None -> return card.HolderId.ToString()
+                             |> sprintf "User entity with id %s was not found"
+                             |> insertError "Card" card.CardNumber.Value
+            | Some _ -> return! (cardEntity, accountInfoEntity) |> CommandRepository.createCardAsync mongoDb
+        }
 
     let createUserAsync (mongoDb: MongoDb) : CreateUserAsync =
         fun user ->
