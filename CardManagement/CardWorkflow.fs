@@ -94,7 +94,7 @@ module CardWorkflow =
     let createCard cardCommand =
         program {
             let! card = validateCreateCardCommand cardCommand |> expectValidationError
-            let accountInfo = AccountInfo.Default cardCommand.UserId
+            let accountInfo = AccountInfo.Default card.HolderId
             do! createNewCard (card, accountInfo) |> expectDataRelatedErrorProgram
             return card |> toCardInfoModel |> Ok
         }

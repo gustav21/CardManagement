@@ -72,7 +72,7 @@ module CardDomainCommandModels =
           Name: string
           ExpirationMonth: uint16
           ExpirationYear: uint16
-          UserId: UserId }
+          UserId: UserId option }
 
     (*
     This is a brief API description made with just type aliases.
@@ -170,12 +170,16 @@ module CardDomainCommandModels =
             let! number = CardNumber.create "cardNumber" cmd.CardNumber
             let! month = Month.create "expirationMonth" cmd.ExpirationMonth
             let! year = Year.create "expirationYear" cmd.ExpirationYear
+            let! userId =
+                match cmd.UserId with
+                | Some userId -> Ok userId
+                | None -> validationError "userId" "UserId must be specified"
             return
                 { Card.CardNumber = number
                   Name = name
-                  HolderId = cmd.UserId
+                  HolderId = userId
                   Expiration = month,year
                   AccountDetails =
-                     AccountInfo.Default cmd.UserId
+                     AccountInfo.Default userId
                      |> Active }
         }
