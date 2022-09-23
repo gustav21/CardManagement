@@ -32,7 +32,7 @@ let main argv =
           ExpirationMonth = 11us
           ExpirationYear = 2023us
           Name = "Daario Naharis"
-          UserId = userId }
+          UserId = Some userId }
 
     let topUpModel =
         { TopUpCommandModel.CardNumber = cardNumber
