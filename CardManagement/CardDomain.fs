@@ -32,6 +32,7 @@ module CardDomain =
             match str with
             | (null|"") -> validationError fieldName "card number can't be empty"
             | str ->
+                let str = str |> String.filter (Char.IsWhiteSpace >> not)
                 if cardNumberRegex.IsMatch(str) then CardNumber str |> Ok
                 else validationError fieldName "Card number must be a 16 digits string"
 
