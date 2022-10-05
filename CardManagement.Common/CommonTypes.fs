@@ -98,5 +98,12 @@ module CommonTypes =
           PostalCode: PostalCode
           AddressLine1: string
           AddressLine2: string }
+        with
+        static member create country city postalCode addressLine1 addressLine2 =
+            { Country = country
+              City = city
+              PostalCode = postalCode
+              AddressLine1 = addressLine1
+              AddressLine2 = addressLine2 }
 
     type nil<'a when 'a: struct and 'a: (new: unit-> 'a) and 'a:> System.ValueType> = System.Nullable<'a>

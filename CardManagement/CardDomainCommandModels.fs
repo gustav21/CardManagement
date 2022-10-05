@@ -13,6 +13,7 @@ module CardDomainCommandModels =
     open CardDomain
     open CardManagement.Common.Errors
     open FsToolkit.ErrorHandling
+    open ValidationResult
 
     type ActivateCommand = { CardNumber: CardNumber }
 
@@ -148,6 +149,14 @@ module CardDomainCommandModels =
                   AddressLine2 = cmd.AddressLine2}
         }
 
+    /// applicative version of address validation
+    let validateCreateAddressCommandA : ValidateCreateAddressCommand =
+        fun cmd ->
+            let country = parseCountry cmd.Country
+            let city = LetterString.create "city" cmd.City
+            let postalCode = PostalCode.create "postalCode" cmd.PostalCode
+            Address.create <!> country <*> city <*> postalCode <*> Ok cmd.AddressLine1 <*> Ok cmd.AddressLine2
+
     let validateCreateUserCommand userId : ValidateCreateUserCommand =
         fun cmd ->
         result {
@@ -162,6 +171,19 @@ module CardDomainCommandModels =
                   Name = name
                   Address = address }
         }
+
+    /// applicative version of user validation
+    let validateCreateUserCommandA userId : ValidateCreateUserCommand =
+        fun cmd ->
+            let name = LetterString.create "name" cmd.Name
+            let address = result {
+                let! address =
+                    match cmd.Address with
+                    | Some address -> Ok address
+                    | None -> validationError "Address" "Address must be specified"
+                return! validateCreateAddressCommandA address
+            }
+            UserInfo.create <!> Ok userId <*> name <*> address
 
     let validateCreateCardCommand : ValidateCreateCardCommand =
         fun cmd ->
@@ -183,3 +205,19 @@ module CardDomainCommandModels =
                      AccountInfo.Default userId
                      |> Active }
         }
+
+    /// applicative version of card validation
+    let validateCreateCardCommandA : ValidateCreateCardCommand =
+        let createTuple x y = x,y
+        fun cmd ->
+            let name = LetterString.create "name" cmd.Name
+            let number = CardNumber.create "cardNumber" cmd.CardNumber
+            let month = Month.create "expirationMonth" cmd.ExpirationMonth
+            let year = Year.create "expirationYear" cmd.ExpirationYear
+            let userId =
+                match cmd.UserId with
+                | Some userId -> Ok userId
+                | None -> validationError "userId" "UserId must be specified"
+            let accountDetails = userId |> Result.map (AccountInfo.Default >> Active)
+            let expiration = createTuple <!> month <*> year
+            Card.create <!> number <*> name <*> userId <*> expiration <*> accountDetails
