@@ -106,6 +106,13 @@ module CardDomain =
           HolderId: UserId
           Expiration: (Month * Year)
           AccountDetails: CardAccountInfo }
+        with
+        static member create cardNumber name holderId expiration accountDetails =
+            { CardNumber = cardNumber
+              Name = name
+              HolderId = holderId
+              Expiration = expiration
+              AccountDetails = accountDetails }
 
     type CardDetails =
         { Card: Card 
@@ -117,6 +124,11 @@ module CardDomain =
         { Name: LetterString
           Id: UserId
           Address: Address }
+        with
+        static member create id name address =
+            { Id = id
+              Name = name
+              Address = address }
 
     type User =
         { UserInfo : UserInfo

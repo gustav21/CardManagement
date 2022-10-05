@@ -106,3 +106,21 @@ module Result =
         match opt with
         | Some v -> Ok v
         | None -> Error err
+
+module ValidationError =
+    let combine (first1,rest1) (first2,rest2) = (first1,List.concat [rest1; [first2]; rest2])
+
+module ValidationResult =
+    let apply fResult xResult =
+        match fResult,xResult with
+        | Ok f, Ok x ->
+            Ok (f x)
+        | Error e, Ok _ ->
+            Error e
+        | Ok _, Error e ->
+            Error e
+        | Error e1, Error e2 ->
+            Error (ValidationError.combine e1 e2)
+
+    let (<!>) = Result.map
+    let (<*>) = apply
